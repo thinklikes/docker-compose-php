@@ -1,23 +1,24 @@
-ARG PHP_VERSION
-FROM php:${PHP_VERSION}-fpm
+ARG PHP_VERSION=8.4
+FROM php:${PHP_VERSION}-fpm-alpine
+
+ARG GROUP_ID=1000
+ARG USER_ID=1000
+ENV USER_NAME=www-data
+ARG GROUP_NAME=www-data
+
+RUN apk --no-cache add shadow && \
+    usermod -u ${USER_ID} ${USER_NAME} -s /bin/bash && \
+    groupmod -g ${USER_ID} ${GROUP_NAME}
 
 # Install system dependencies
 RUN set -eux; \
-    apt-get update \
-    && apt-get install -y \
-    apache2-utils \
-    wrk \
+    apk add --no-cache \
+    bash \
     git \
     curl \
-    gnupg \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
     zip \
     unzip \
-    cron  \
-    ffmpeg \
-    default-mysql-client
+    tzdata
 
 # Add docker php ext repo
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
@@ -25,68 +26,39 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN set -eux; \
     chmod +x /usr/local/bin/install-php-extensions; \
     install-php-extensions \
-    amqp \
     apcu \
     bcmath \
-    bz2 \
-    calendar \
     decimal \
-    enchant \
-    event \
     exif \
     gd \
-    gettext \
-    gmp \
     igbinary \
     imagick \
     intl \
     lzf \
-    memcached \
-    mongodb \
-    msgpack \
-    mysqli \
     opcache \
     pcntl \
     pdo_mysql \
-    pdo_pgsql \
-    pgsql \
     redis \
-    sockets \
-    swoole \
-    tidy \
     timezonedb \
     uuid \
-    xdebug \
     xlswriter \
-    xsl \
-    yac \
     yaml \
     zip
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install NodeJs 16.x
-ARG NODEJS_VERSION
-RUN apt-get update -yq \
-    && curl -sL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x | bash \
-    && apt-get install nodejs -yq
-
-# Install Claude CLI & GitHub Copilot CLI
-RUN npm install -g @anthropic-ai/claude-code @github/copilot
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Timezone
 ARG TIMEZONE=UTC
-ENV TZ ${TIMEZONE}
+ENV TZ=${TIMEZONE}
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 
-# Copy aliases
-COPY ./aliases.sh /root/aliases.sh
+USER www-data
 
-RUN sed -i 's/\r//' /root/aliases.sh && \
+# Copy aliases
+COPY ./aliases.sh /home/www-data/aliases.sh
+
+RUN sed -i 's/\r//' ~/aliases.sh && \
     echo "" >> ~/.bashrc && \
     echo "# Load Custom Aliases" >> ~/.bashrc && \
     echo "source ~/aliases.sh" >> ~/.bashrc && \
