@@ -13,5 +13,6 @@
 *.log
 /consul/data/*
 !/consul/data/.gitkeep
+/consul/.token
 
 
