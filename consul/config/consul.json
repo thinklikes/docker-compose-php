@@ -1,0 +1,5 @@
+{
+  "datacenter": "local",
+  "log_level": "INFO",
+  "server": true
+}

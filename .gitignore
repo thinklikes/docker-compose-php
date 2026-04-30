@@ -11,5 +11,7 @@
 /mysql8/data/*
 /mysql8/log/*
 *.log
+/consul/data/*
+!/consul/data/.gitkeep
 
 
