@@ -13,6 +13,4 @@
 *.log
 /consul/data/*
 !/consul/data/.gitkeep
-/consul/.token
-
-
+/consul/kv-init.json

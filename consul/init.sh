@@ -4,14 +4,19 @@ set -e
 CONSUL_URL="http://localhost:8500"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 KV_FILE="${SCRIPT_DIR}/kv-init.json"
-TOKEN_FILE="${SCRIPT_DIR}/.token"
+ENV_FILE="${SCRIPT_DIR}/../.env"
 
-if [ ! -f "${TOKEN_FILE}" ]; then
-  echo "ERROR: Token file not found at ${TOKEN_FILE}"
+if [ ! -f "${ENV_FILE}" ]; then
+  echo "ERROR: .env not found at ${ENV_FILE}"
   exit 1
 fi
 
-TOKEN=$(cat "${TOKEN_FILE}")
+TOKEN=$(grep '^CONSUL_MANAGEMENT_TOKEN=' "${ENV_FILE}" | cut -d'=' -f2 | tr -d '[:space:]')
+
+if [ -z "${TOKEN}" ]; then
+  echo "ERROR: CONSUL_MANAGEMENT_TOKEN is not set in .env"
+  exit 1
+fi
 
 echo "Waiting for Consul to be ready..."
 until curl -sf "${CONSUL_URL}/v1/status/leader" > /dev/null 2>&1; do
