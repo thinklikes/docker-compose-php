@@ -15,6 +15,7 @@ RUN set -eux; \
     apk add --no-cache \
     bash \
     git \
+    openssh \
     curl \
     zip \
     unzip \
@@ -48,11 +49,7 @@ RUN set -eux; \
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# 如果此用 PHP 8 以下版本，則 composer 降級
-RUN if [ $(echo "$PHP_VERSION < 8" | bc) -eq 1 ]; then \
-        # composer 降級
-        composer self-update --1; \
-    fi
+RUN composer self-update --1
 
 # Timezone
 ARG TIMEZONE=UTC

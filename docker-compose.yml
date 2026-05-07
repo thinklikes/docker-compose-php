@@ -162,6 +162,7 @@ services:
         volumes:
             - ./consul/config:/consul/config
             - ./consul/data:/consul/data
+            - ./realms:/consul/realms
         entrypoint: ["/bin/sh", "-c"]
         command:
             - |

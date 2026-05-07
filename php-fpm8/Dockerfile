@@ -15,6 +15,7 @@ RUN set -eux; \
     apk add --no-cache \
     bash \
     git \
+    openssh \
     curl \
     zip \
     unzip \
